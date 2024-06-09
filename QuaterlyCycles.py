@@ -67,12 +67,18 @@ class QuarterlyCycles:
         return None
 
     def get_90_minute_quarter(self):
-        start_time = datetime(self.year, self.month, self.day, 18, 0)
-        quarters = [timedelta(minutes=90*i) for i in range(4)]
-        for i, start_delta in enumerate(quarters, 1):
-            end_delta = start_delta + timedelta(minutes=90)
-            if start_time + start_delta <= self.dt < start_time + end_delta:
-                return f"Q{i}", (start_time + start_delta, start_time + end_delta)
+        sessions = [
+            ("Asia", 18, [(18, 0, 19, 30), (19, 30, 21, 0), (21, 0, 22, 30), (22, 30, 23, 59)]),
+            ("London", 0, [(0, 0, 1, 30), (1, 30, 3, 0), (3, 0, 4, 30), (4, 30, 6, 0)]),
+            ("New York", 6, [(6, 0, 7, 30), (7, 30, 9, 0), (9, 0, 10, 30), (10, 30, 12, 0)]),
+            ("Afternoon", 12, [(12, 0, 13, 30), (13, 30, 15, 0), (15, 0, 16, 30), (16, 30, 18, 0)])
+        ]
+        for session_name, start_hour, quarters in sessions:
+            for i, (start_h, start_m, end_h, end_m) in enumerate(quarters, 1):
+                start_time = datetime(self.year, self.month, self.day, start_h, start_m)
+                end_time = datetime(self.year, self.month, self.day, end_h, end_m)
+                if start_time <= self.dt < end_time:
+                    return f"{session_name} Q{i}", (start_time, end_time)
         return None
 
     def get_micro_quarter(self):
@@ -108,9 +114,6 @@ class QuarterlyCycles:
                 result_str += f"  End: N/A\n\n"
         return result_str
 
-# Example Usage
-qt = QuarterlyCycles(datetime(2024, 6, 9, 10, 30))
-print(qt.get_current_quarter())
 
 #qt = QuarterlyCycles(datetime(2024, 6, 9, 10, 30))
 #print(qt.get_current_quarter())

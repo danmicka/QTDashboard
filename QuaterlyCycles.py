@@ -14,124 +14,64 @@ class QuarterlyCycles:
     def format_datetime(self, dt: datetime):
         return dt.strftime("%d/%m/%Y %H:%M")
 
-    def get_first_full_week_start(self):
-        first_day_of_month = datetime(self.year, self.month, 1)
-        first_day_of_month = self.timezone.localize(first_day_of_month)
+    def get_start_of_first_full_week(self):
+        first_day_of_month = self.timezone.localize(datetime(self.year, self.month, 1))
         first_sunday_6pm = first_day_of_month + timedelta(days=(6 - first_day_of_month.weekday() + 1) % 7, hours=18 - first_day_of_month.hour)
         if first_sunday_6pm.day > 1:
-            first_sunday_6pm = first_sunday_6pm + timedelta(days=7)
+            first_sunday_6pm += timedelta(days=7)
         return first_sunday_6pm
 
-    def first_monday_of_month(self):
+    def get_first_monday(self):
         first_day = datetime(self.year, self.month, 1)
         first_monday = first_day + timedelta(days=(7 - first_day.weekday()) % 7)
-        return first_monday
+        return self.timezone.localize(first_monday)
 
     def get_yearly_quarter(self):
         quarters = [(1, 3), (4, 6), (7, 9), (10, 12)]
         for i, (start, end) in enumerate(quarters, 1):
             if start <= self.month <= end:
                 start_dt = self.timezone.localize(datetime(self.year, start, 1))
-                end_dt = self.timezone.localize(datetime(self.year, end, 1) + timedelta(days=-1))
+                end_dt = self.timezone.localize(datetime(self.year, end + 1, 1)) - timedelta(days=1)
                 return f"Q{i}", (start_dt, end_dt)
         return None
 
     def get_monthly_quarter(self):
-        first_monday = self.first_monday_of_month()
+        first_monday = self.get_first_monday()
+        quarters = [(first_monday - timedelta(days=1) + timedelta(hours=18))]
+        for i in range(1, 4):
+            quarters.append(quarters[-1] + timedelta(days=7))
+
+        for i, (start_time) in enumerate(quarters, 1):
+            end_time = start_time + timedelta(days=7)
+            if start_time <= self.dt < end_time:
+                return f"Q{i}", (start_time, end_time)
         
-        q1_start = self.timezone.localize(first_monday - timedelta(days=1) + timedelta(hours=18))
-
-        q1_end = q1_start + timedelta(days=7)
-        q2_start = q1_end
-        q2_end = q2_start + timedelta(days=7)
-        q3_start = q2_end
-        q3_end = q3_start + timedelta(days=7)
-        q4_start = q3_end
-        q4_end = q4_start + timedelta(days=7)
-
-        if q1_start <= self.dt < q1_end:
-            current_quarter = 'Q1'
-            start_datetime = q1_start
-            end_datetime = q1_end
-        elif q2_start <= self.dt < q2_end:
-            current_quarter = 'Q2'
-            start_datetime = q2_start
-            end_datetime = q2_end
-        elif q3_start <= self.dt < q3_end:
-            current_quarter = 'Q3'
-            start_datetime = q3_start
-            end_datetime = q3_end
-        elif q4_start <= self.dt < q4_end:
-            current_quarter = 'Q4'
-            start_datetime = q4_start
-            end_datetime = q4_end
-        else:
-            current_quarter = 'Qx'
-            start_datetime = (self.dt - timedelta(days=self.dt.weekday() + 1)).replace(hour=18,minute=00)
-            days_until_friday = (4 - self.dt.weekday()) % 7
-            end_datetime = (self.dt + timedelta(days=days_until_friday)).replace(hour=16,minute=00)
-
-        return current_quarter, (start_datetime, end_datetime)
+        # Handle extra period if not within any quarter
+        start_time = (self.dt - timedelta(days=self.dt.weekday() + 1)).replace(hour=18, minute=0)
+        days_until_friday = (4 - self.dt.weekday()) % 7
+        end_time = (self.dt + timedelta(days=days_until_friday)).replace(hour=16, minute=0)
+        return "Qx", (start_time, end_time)
 
     def get_weekly_quarter(self):
-        quarters = {
-            "Q1": (0, 0),
-            "Q2": (1, 1),
-            "Q3": (2, 2),
-            "Q4": (3, 3),
-        }
+        quarters = ["Q1", "Q2", "Q3", "Q4"]
         day_of_week = self.dt.weekday()
         hour = self.dt.hour
-        
-        if day_of_week == 6:  # Sunday
-            if hour >= 18:
-                return "Q1", (datetime(self.dt.year, self.dt.month, self.dt.day, 18, 0, 0),
-                                datetime(self.dt.year, self.dt.month, self.dt.day + 1, 18, 0, 0))
-            else:
-                return "Qx", (datetime(self.dt.year, self.dt.month, self.dt.day - 1, 16, 0, 0),
-                                datetime(self.dt.year, self.dt.month, self.dt.day, 18, 0, 0))
-        elif day_of_week == 0:  # Monday
-            if hour < 18:
-                return "Q1", (datetime(self.dt.year, self.dt.month, self.dt.day - 1, 18, 0, 0),
-                            datetime(self.dt.year, self.dt.month, self.dt.day, 18, 0, 0))
-            else:
-                return "Q2", (datetime(self.dt.year, self.dt.month, self.dt.day, 18, 0, 0),
-                            datetime(self.dt.year, self.dt.month, self.dt.day + 1, 18, 0, 0))
-        elif day_of_week == 1:  # Tuesday
-            if hour < 18:
-                return "Q2", (datetime(self.dt.year, self.dt.month, self.dt.day - 1, 18, 0, 0),
-                            datetime(self.dt.year, self.dt.month, self.dt.day, 18, 0, 0))
-            else:
-                return "Q3", (datetime(self.dt.year, self.dt.month, self.dt.day, 18, 0, 0),
-                            datetime(self.dt.year, self.dt.month, self.dt.day + 1, 18, 0, 0))
-        elif day_of_week == 2:  # Wednesday
-            if hour < 18:
-                return "Q3", (datetime(self.dt.year, self.dt.month, self.dt.day - 1, 18, 0, 0),
-                            datetime(self.dt.year, self.dt.month, self.dt.day, 18, 0, 0))
-            else:
-                return "Q4", (datetime(self.dt.year, self.dt.month, self.dt.day, 18, 0, 0),
-                            datetime(self.dt.year, self.dt.month, self.dt.day + 1, 18, 0, 0))
-        elif day_of_week == 3:  # Thursday
-            if hour < 18:
-                return "Q4", (datetime(self.dt.year, self.dt.month, self.dt.day - 1, 18, 0, 0),
-                            datetime(self.dt.year, self.dt.month, self.dt.day, 18, 0, 0))
-            else:
-                return "Qx", (datetime(self.dt.year, self.dt.month, self.dt.day, 16, 0, 0),
-                            datetime(self.dt.year, self.dt.month, self.dt.day + 1, 16, 0, 0))
-        elif day_of_week == 4:  # Friday
-            return "Qx", (datetime(self.dt.year, self.dt.month, self.dt.day, 16, 0, 0),
-                        datetime(self.dt.year, self.dt.month, self.dt.day + 1, 16, 0, 0))
-        elif day_of_week == 5:  # Saturday
-            return "Qx", (datetime(self.dt.year, self.dt.month, self.dt.day - 1, 16, 0, 0),
-                    datetime(self.dt.year, self.dt.month, self.dt.day, 16, 0, 0))
 
+        for i, (start_hour, end_hour) in enumerate([(18, 18), (18, 18), (18, 18), (18, 16)]):
+            if day_of_week == i and hour < end_hour:
+                start_time = self.dt - timedelta(days=1 if day_of_week == 0 else 0)
+                start_time = start_time.replace(hour=start_hour, minute=0)
+                end_time = start_time + timedelta(days=1)
+                return quarters[i], (start_time, end_time)
+        
+        return "Qx", (self.dt.replace(hour=16, minute=0), (self.dt + timedelta(days=1)).replace(hour=16, minute=0))
 
     def get_daily_quarter(self):
-        quarters = [(18, 24), (24, 6), (6, 12), (12, 18)]
+        quarters = [(18, 24), (0, 6), (6, 12), (12, 18)]
         for i, (start, end) in enumerate(quarters, 1):
-            if start <= self.hour < end or (start == 18 and self.hour < end):
-                start_dt = self.timezone.localize(datetime(self.year, self.month, self.day, start, 0))
-                end_dt = start_dt + timedelta(hours=6)
+            start_dt = self.timezone.localize(datetime(self.year, self.month, self.day, start, 0))
+            end_dt = start_dt + timedelta(hours=6)
+            if start_dt <= self.dt < end_dt:
                 return f"Q{i}", (start_dt, end_dt)
         return None
 
@@ -152,11 +92,11 @@ class QuarterlyCycles:
 
     def get_micro_quarter(self):
         start_time = self.timezone.localize(datetime(self.year, self.month, self.day, 18, 0))
-        quarters = [timedelta(minutes=22.5*i) for i in range(4)]
-        for i, start_delta in enumerate(quarters, 1):
+        for i in range(4):
+            start_delta = timedelta(minutes=22.5 * i)
             end_delta = start_delta + timedelta(minutes=22.5)
             if start_time + start_delta <= self.dt < start_time + end_delta:
-                return f"Q{i}", (start_time + start_delta, start_time + end_delta)
+                return f"Q{i + 1}", (start_time + start_delta, start_time + end_delta)
         return None
 
     def get_current_quarter(self):
@@ -184,5 +124,5 @@ class QuarterlyCycles:
         return result_str
 
 # Example Usage
-#qt = QuarterlyTheory(datetime(2024, 6, 9, 10, 30), timezone='America/New_York')
+#qt = QuarterlyCycles(datetime(2024, 6, 9, 10, 30), timezone='America/New_York')
 #print(qt.get_current_quarter())

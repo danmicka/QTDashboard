@@ -4,7 +4,10 @@ import pytz
 class QuarterlyCycles:
     def __init__(self, dt: datetime, timezone: str = 'UTC'):
         self.timezone = pytz.timezone(timezone)
-        self.dt = self.timezone.localize(dt)
+        if dt.tzinfo is None:
+            self.dt = self.timezone.localize(dt)
+        else:
+            self.dt = dt.astimezone(self.timezone)
         self.year = self.dt.year
         self.month = self.dt.month
         self.day = self.dt.day
@@ -123,6 +126,57 @@ class QuarterlyCycles:
                 result_str += f"  End: N/A\n\n"
         return result_str
 
-# Example Usage
-#qt = QuarterlyCycles(datetime(2024, 6, 9, 10, 30), timezone='America/New_York')
-#print(qt.get_current_quarter())
+    def get_previous_yearly_quarter(self):
+        previous_dt = self.dt - timedelta(weeks=13)
+        prev_quarters = QuarterlyCycles(previous_dt, self.timezone.zone)
+        return prev_quarters.get_yearly_quarter()
+
+    def get_previous_monthly_quarter(self):
+        previous_dt = self.dt - timedelta(days=7)
+        prev_quarters = QuarterlyCycles(previous_dt, self.timezone.zone)
+        return prev_quarters.get_monthly_quarter()
+
+    def get_previous_weekly_quarter(self):
+        previous_dt = self.dt - timedelta(days=1)
+        prev_quarters = QuarterlyCycles(previous_dt, self.timezone.zone)
+        return prev_quarters.get_weekly_quarter()
+
+    def get_previous_daily_quarter(self):
+        previous_dt = self.dt - timedelta(hours=6)
+        prev_quarters = QuarterlyCycles(previous_dt, self.timezone.zone)
+        return prev_quarters.get_daily_quarter()
+
+    def get_previous_90_minute_quarter(self):
+        previous_dt = self.dt - timedelta(minutes=90)
+        prev_quarters = QuarterlyCycles(previous_dt, self.timezone.zone)
+        return prev_quarters.get_90_minute_quarter()
+
+    def get_previous_micro_quarter(self):
+        previous_dt = self.dt - timedelta(minutes=22.5)
+        prev_quarters = QuarterlyCycles(previous_dt, self.timezone.zone)
+        return prev_quarters.get_micro_quarter()
+
+    def get_previous_quarter(self):
+        results = {
+            "yearly": self.get_previous_yearly_quarter(),
+            "monthly": self.get_previous_monthly_quarter(),
+            "weekly": self.get_previous_weekly_quarter(),
+            "daily": self.get_previous_daily_quarter(),
+            "90_minute": self.get_previous_90_minute_quarter(),
+            "micro": self.get_previous_micro_quarter(),
+        }
+        result_str = ""
+        for cycle, result in results.items():
+            if result:
+                quarter, (start, end) = result
+                result_str += f"{cycle.capitalize()}:\n"
+                result_str += f"  Quarter: {quarter}\n"
+                result_str += f"  Start: {self.format_datetime(start)}\n"
+                result_str += f"  End: {self.format_datetime(end)}\n\n"
+            else:
+                result_str += f"{cycle.capitalize()}:\n"
+                result_str += f"  Quarter: Not found\n"
+                result_str += f"  Start: N/A\n"
+                result_str += f"  End: N/A\n\n"
+        return result_str
+

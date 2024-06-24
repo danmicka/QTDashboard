@@ -56,18 +56,30 @@ class QuarterlyCycles:
         return "Qx", (start_time, end_time)
 
     def get_weekly_quarter(self):
-        quarters = ["Q1", "Q2", "Q3", "Q4"]
         day_of_week = self.dt.weekday()
         hour = self.dt.hour
 
-        for i, (start_hour, end_hour) in enumerate([(18, 18), (18, 18), (18, 18), (18, 16)]):
-            if day_of_week == i and hour < end_hour:
-                start_time = self.dt - timedelta(days=1 if day_of_week == 0 else 0)
-                start_time = start_time.replace(hour=start_hour, minute=0)
-                end_time = start_time + timedelta(days=1)
-                return quarters[i], (start_time, end_time)
-        
-        return "Qx", (self.dt.replace(hour=16, minute=0), (self.dt + timedelta(days=1)).replace(hour=16, minute=0))
+        sessions = [
+            ("Q1", [18, 0, 18, 0]),
+            ("Q2", [18, 0, 18, 0]),
+            ("Q3", [18, 0, 18, 0]),
+            ("Q4", [18, 0, 18, 0]),
+            ("Qx", [18, 0, 16, 0]),
+        ]
+        for i, (session_name, quarters) in enumerate(sessions):
+             if day_of_week == i: 
+                start_h, start_m, end_h, end_m = quarters
+                if self.hour >= end_h and self.minute > end_m:           
+                    start_time = self.timezone.localize(datetime(self.year, self.month, self.day, start_h, start_m))
+                    end_time = self.timezone.localize(datetime(self.year, self.month, self.day+1, end_h, end_m))
+                    Q=sessions[i+1][0]
+                else:
+                    start_time = self.timezone.localize(datetime(self.year, self.month, self.day-1, start_h, start_m))
+                    end_time = self.timezone.localize(datetime(self.year, self.month, self.day, end_h, end_m))
+                    Q=sessions[i][0]
+    
+                return f"{Q}", (start_time, end_time)
+        return None
 
     def get_daily_quarter(self):
         quarters = [(18, 24), (0, 6), (6, 12), (12, 18)]

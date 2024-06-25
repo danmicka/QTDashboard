@@ -149,7 +149,10 @@ class QuarterlyCycles:
         return prev_quarters.get_monthly_quarter()
 
     def get_previous_weekly_quarter(self):
-        previous_dt = self.dt - timedelta(days=1)
+        if self.dt.weekday() == 0:
+            previous_dt = self.dt - timedelta(days=3)
+        else : 
+            previous_dt = self.dt - timedelta(days=1)
         prev_quarters = QuarterlyCycles(previous_dt, self.timezone.zone)
         return prev_quarters.get_weekly_quarter()
 

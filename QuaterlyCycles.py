@@ -69,13 +69,13 @@ class QuarterlyCycles:
         for i, (session_name, quarters) in enumerate(sessions):
              start_d, start_h, start_m, end_d, end_h, end_m = quarters
              if day_of_week in [start_d, end_d]:                 
-                if day_of_week == end_d and self.hour >= end_h and self.minute >= end_m:           
+                if day_of_week == end_d and self.hour >= end_h and self.minute > end_m:           
                     start_time = self.timezone.localize(datetime(self.year, self.month, self.day, end_h, end_m))
                     end_time = self.timezone.localize(datetime(self.year, self.month, self.day+1, end_h, end_m))
                     Q=sessions[i+1][0]
                 else:
-                    start_time = self.timezone.localize(datetime(self.year, self.month, self.day, start_h, start_m))
-                    end_time = self.timezone.localize(datetime(self.year, self.month, self.day+1, end_h, end_m))
+                    start_time = self.timezone.localize(datetime(self.year, self.month, self.day-1, start_h, start_m))
+                    end_time = self.timezone.localize(datetime(self.year, self.month, self.day, end_h, end_m))
                     Q=sessions[i][0]
     
                 return f"{Q}", (start_time, end_time)

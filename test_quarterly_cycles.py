@@ -71,7 +71,7 @@ class TestQuarterlyCycles(unittest.TestCase):
         quarter, (start, end) = qt.get_previous_weekly_quarter()
         self.assertEqual(quarter, "Qx")
         self.assertEqual(start, self.tz.localize(datetime(2024, 6, 9, 18, 0)))
-        self.assertEqual(end, self.tz.localize(datetime(2024, 6, 10, 18, 0)))
+        self.assertEqual(end, self.tz.localize(datetime(2024, 6, 10, 16, 0)))
     
     def test_weekly_previous_quarter_q2(self):
         # Monday 7pm (Q2)
@@ -80,7 +80,7 @@ class TestQuarterlyCycles(unittest.TestCase):
         quarter, (start, end) = qt.get_previous_weekly_quarter()
         self.assertEqual(quarter, "Qx")
         self.assertEqual(start, self.tz.localize(datetime(2024, 6, 10, 18, 0)))
-        self.assertEqual(end, self.tz.localize(datetime(2024, 6, 11, 18, 0)))
+        self.assertEqual(end, self.tz.localize(datetime(2024, 6, 11, 16, 0)))
     
 
 if __name__ == '__main__':

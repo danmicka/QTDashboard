@@ -55,6 +55,7 @@ class QuarterlyCycles:
         end_time = (self.dt + timedelta(days=days_until_friday)).replace(hour=16, minute=0)
         return "Qx", (start_time, end_time)
 
+    """
     def get_weekly_quarter(self):
         day_of_week = self.dt.weekday()
         hour = self.dt.hour
@@ -80,7 +81,67 @@ class QuarterlyCycles:
     
                 return f"{Q}", (start_time, end_time)
         return None
- 
+    """
+    """
+    def get_weekly_quarter(self):
+        day_of_week = self.dt.weekday()
+        hour = self.dt.hour
+
+        #get the Sunday
+        days_since_sunday = (day_of_week + 1) % 7 + 7
+        previous_sunday = (self.dt - timedelta(days=days_since_sunday)).replace(hour=18, minute=0)
+        print(previous_sunday)
+
+        #get the monday
+        days_since_monday = (day_of_week + 7) % 7
+        previous_monday = (self.dt - timedelta(days=days_since_monday)).replace(hour=18, minute=0)
+        print(previous_monday)
+
+        #get the Tuesday
+        days_since_tuesday = 2 - day_of_week
+        previous_tuesday = (self.dt - timedelta(days=days_since_tuesday)).replace(hour=18, minute=0)
+        print(previous_tuesday)
+
+        #get the Wednesday
+        days_since_wednesday = (2 - day_of_week + 7) % 7
+        previous_wednesday = (self.dt - timedelta(days=days_since_wednesday)).replace(hour=18, minute=0)
+        print(previous_wednesday)
+
+        #get the Thursday
+        days_since_thursday = (3 - day_of_week + 7) % 7
+        previous_thursday = (self.dt - timedelta(days=days_since_thursday)).replace(hour=18, minute=0)
+        print(previous_thursday)
+
+        #get the friday
+        days_since_friday = (4 - day_of_week + 7) % 7
+        previous_friday = (self.dt - timedelta(days=days_since_friday)).replace(hour=18, minute=0)
+        print(previous_friday)
+        print('test')
+    """
+
+    def get_weekly_quarter(self):
+        day_of_week = self.dt.weekday()
+        hour = self.dt.hour
+
+        qts = ["Q1", "Q2", "Q3", "Q4", "Qx"]
+
+        if hour > 18:
+            if day_of_week == 6:
+                qt=qts[0]  
+            else:              
+                qt = qts[day_of_week+1]
+            start_dt = self.timezone.localize(datetime(self.year, self.month, self.day, 18, 00))
+            end_dt = (self.dt + timedelta(days=1)).replace(hour=18, minute=0)
+        else:
+            qt = qts[day_of_week]
+            start_dt = (self.dt - timedelta(days=1)).replace(hour=18, minute=0)
+            if day_of_week == 4:
+                end_dt = self.timezone.localize(datetime(self.year, self.month, self.day, 16, 00))
+            else:
+                end_dt = self.timezone.localize(datetime(self.year, self.month, self.day, 18, 00))
+
+        return f"{qt}", (start_dt, end_dt)
+
     def get_daily_quarter(self):
         quarters = [(18, 24), (0, 6), (6, 12), (12, 18)]
         for i, (start, end) in enumerate(quarters, 1):

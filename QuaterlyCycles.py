@@ -131,7 +131,10 @@ class QuarterlyCycles:
             else:              
                 qt = qts[day_of_week+1]
             start_dt = self.timezone.localize(datetime(self.year, self.month, self.day, 18, 00))
-            end_dt = (self.dt + timedelta(days=1)).replace(hour=18, minute=0)
+            if day_of_week + 1 == 4:
+                end_dt = (self.dt + timedelta(days=1)).replace(hour=16, minute=0)
+            else:
+                end_dt = (self.dt + timedelta(days=1)).replace(hour=18, minute=0)
         else:
             qt = qts[day_of_week]
             start_dt = (self.dt - timedelta(days=1)).replace(hour=18, minute=0)
@@ -141,6 +144,7 @@ class QuarterlyCycles:
                 end_dt = self.timezone.localize(datetime(self.year, self.month, self.day, 18, 00))
 
         return f"{qt}", (start_dt, end_dt)
+    
 
     def get_daily_quarter(self):
         quarters = [(18, 24), (0, 6), (6, 12), (12, 18)]
@@ -213,9 +217,12 @@ class QuarterlyCycles:
         # if Monday
         if self.dt.weekday() == 0:
             # force to time = 12:00 to prevent any timing issue
-            previous_dt = (self.dt - timedelta(days=3)).replace(hour=12, minute=0, second=0)
+            if self.dt.hour > 18:
+                previous_dt = (self.dt - timedelta(days=1)).replace(hour=19, minute=0, second=0)    
+            else:
+                previous_dt = (self.dt - timedelta(days=3)).replace(hour=12, minute=0, second=0)
         elif self.dt.weekday() == 6: 
-            previous_dt = (self.dt - timedelta(days=2)).replace(hour=12, minute=0, second=0)
+            previous_dt = (self.dt - timedelta(days=2)).replace(hour=19, minute=0, second=0)
         else: 
             previous_dt = self.dt - timedelta(days=1)
         

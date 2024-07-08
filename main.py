@@ -21,6 +21,10 @@ if __name__ == "__main__":
     # Sun 7pm
     #qt = QuarterlyCycles(datetime(2024, 7, 1, 19, 00), timezone='America/New_York')
     qt = QuarterlyCycles(datetime(2024, 6, 9, 19, 00), timezone='America/New_York')
+    # Fri 10am
+    #qt = QuarterlyCycles(datetime(2024, 6, 14, 10, 00), timezone='America/New_York')
+    # THu 7pm
+    #qt = QuarterlyCycles(datetime(2024, 6, 13, 19, 00), timezone='America/New_York')
 
     print('current quaters:')
     print(qt.get_current_quarter())

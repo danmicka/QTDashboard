@@ -147,7 +147,7 @@ class QuarterlyCycles:
     
 
     def get_daily_quarter(self):
-        quarters = [(18, 24), (0, 6), (6, 12), (12, 18)]
+        quarters = [(18, 0), (0, 6), (6, 12), (12, 18)]
         for i, (start, end) in enumerate(quarters, 1):
             start_dt = self.timezone.localize(datetime(self.year, self.month, self.day, start, 0))
             end_dt = start_dt + timedelta(hours=6)
@@ -222,7 +222,7 @@ class QuarterlyCycles:
             else:
                 previous_dt = (self.dt - timedelta(days=3)).replace(hour=12, minute=0, second=0)
         elif self.dt.weekday() == 6: 
-            previous_dt = (self.dt - timedelta(days=2)).replace(hour=19, minute=0, second=0)
+            previous_dt = (self.dt - timedelta(days=2)).replace(hour=12, minute=0, second=0)
         else: 
             previous_dt = self.dt - timedelta(days=1)
         

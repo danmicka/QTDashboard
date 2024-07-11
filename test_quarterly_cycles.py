@@ -134,5 +134,71 @@ class TestQuarterlyCycles(unittest.TestCase):
         self.assertEqual(start, self.tz.localize(datetime(2024, 7, 10, 12, 0)))
         self.assertEqual(end, self.tz.localize(datetime(2024, 7, 10, 18, 0)))
 
+    # Test 90m quarter
+    def test_90_minute_quarter_asia(self):
+        # Test each quarter in the Asia session
+        quarters = [
+            (datetime(2024, 6, 9, 18, 0), "Asia Q1", datetime(2024, 6, 9, 19, 30)),
+            (datetime(2024, 6, 9, 19, 30), "Asia Q2", datetime(2024, 6, 9, 21, 0)),
+            (datetime(2024, 6, 9, 21, 0), "Asia Q3", datetime(2024, 6, 9, 22, 30)),
+            (datetime(2024, 6, 9, 22, 30), "Asia Q4", datetime(2024, 6, 9, 23, 59)),
+        ]
+        for start, expected_quarter, end in quarters:
+            dt = self.tz.localize(start)
+            qt = QuarterlyCycles(dt, timezone=self.timezone)
+            quarter, (start_time, end_time) = qt.get_90_minute_quarter()
+            self.assertEqual(quarter, expected_quarter)
+            self.assertEqual(start_time, self.tz.localize(start))
+            self.assertEqual(end_time, self.tz.localize(end))
+
+    def test_90_minute_quarter_london(self):
+        # Test each quarter in the London session
+        quarters = [
+            (datetime(2024, 6, 9, 0, 0), "London Q1", datetime(2024, 6, 9, 1, 30)),
+            (datetime(2024, 6, 9, 1, 30), "London Q2", datetime(2024, 6, 9, 3, 0)),
+            (datetime(2024, 6, 9, 3, 0), "London Q3", datetime(2024, 6, 9, 4, 30)),
+            (datetime(2024, 6, 9, 4, 30), "London Q4", datetime(2024, 6, 9, 6, 0)),
+        ]
+        for start, expected_quarter, end in quarters:
+            dt = self.tz.localize(start)
+            qt = QuarterlyCycles(dt, timezone=self.timezone)
+            quarter, (start_time, end_time) = qt.get_90_minute_quarter()
+            self.assertEqual(quarter, expected_quarter)
+            self.assertEqual(start_time, self.tz.localize(start))
+            self.assertEqual(end_time, self.tz.localize(end))
+
+    def test_90_minute_quarter_new_york(self):
+        # Test each quarter in the New York session
+        quarters = [
+            (datetime(2024, 6, 9, 6, 0), "New York Q1", datetime(2024, 6, 9, 7, 30)),
+            (datetime(2024, 6, 9, 7, 30), "New York Q2", datetime(2024, 6, 9, 9, 0)),
+            (datetime(2024, 6, 9, 9, 0), "New York Q3", datetime(2024, 6, 9, 10, 30)),
+            (datetime(2024, 6, 9, 10, 30), "New York Q4", datetime(2024, 6, 9, 12, 0)),
+        ]
+        for start, expected_quarter, end in quarters:
+            dt = self.tz.localize(start)
+            qt = QuarterlyCycles(dt, timezone=self.timezone)
+            quarter, (start_time, end_time) = qt.get_90_minute_quarter()
+            self.assertEqual(quarter, expected_quarter)
+            self.assertEqual(start_time, self.tz.localize(start))
+            self.assertEqual(end_time, self.tz.localize(end))
+
+    def test_90_minute_quarter_afternoon(self):
+        # Test each quarter in the Afternoon session
+        quarters = [
+            (datetime(2024, 6, 9, 12, 0), "Afternoon Q1", datetime(2024, 6, 9, 13, 30)),
+            (datetime(2024, 6, 9, 13, 30), "Afternoon Q2", datetime(2024, 6, 9, 15, 0)),
+            (datetime(2024, 6, 9, 15, 0), "Afternoon Q3", datetime(2024, 6, 9, 16, 30)),
+            (datetime(2024, 6, 9, 16, 30), "Afternoon Q4", datetime(2024, 6, 9, 18, 0)),
+        ]
+        for start, expected_quarter, end in quarters:
+            dt = self.tz.localize(start)
+            qt = QuarterlyCycles(dt, timezone=self.timezone)
+            quarter, (start_time, end_time) = qt.get_90_minute_quarter()
+            self.assertEqual(quarter, expected_quarter)
+            self.assertEqual(start_time, self.tz.localize(start))
+            self.assertEqual(end_time, self.tz.localize(end))
+
+
 if __name__ == '__main__':
     unittest.main()

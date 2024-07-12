@@ -29,6 +29,12 @@ if __name__ == "__main__":
     #qt = QuarterlyCycles(datetime(2024, 6, 14, 10, 00), timezone='America/New_York')
     # THu 7pm
     #qt = QuarterlyCycles(datetime(2024, 6, 13, 19, 00), timezone='America/New_York')
+    # Yearly
+    #qt = QuarterlyCycles(datetime(2024, 11, 15, 10, 0), local_timezone=local_timezone, target_timezone=target_timezone)
+    # Monthly
+    qt =  QuarterlyCycles(datetime(2024, 5, 3, 10, 0), local_timezone=local_timezone, target_timezone=target_timezone)
+
+    """
     # Now
     dt = datetime.now()
     print (dt)
@@ -43,7 +49,7 @@ if __name__ == "__main__":
         print(f"Quarter: {quarter_name}, Start: {start}, End: {end}")
     else:
         print("No 90-minute quarter found.")
-
+    """
     print('current quaters:')
     print(qt.get_current_quarter())
     print('previous quaters:')
@@ -52,3 +58,4 @@ if __name__ == "__main__":
     #qtw = QuarterlyCycles(datetime(2024, 6, 19, 18, 30), timezone='America/New_York')
     #print(qt.get_weekly_quarter())
     #
+    

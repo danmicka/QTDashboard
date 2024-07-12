@@ -37,8 +37,11 @@ class QuarterlyCycles:
         quarters = [(1, 3), (4, 6), (7, 9), (10, 12)]
         for i, (start, end) in enumerate(quarters, 1):
             if start <= self.month <= end:
-                start_dt = self.target_timezone.localize(datetime(self.year, start, 1))
-                end_dt = self.target_timezone.localize(datetime(self.year, end + 1, 1)) - timedelta(days=1)
+                start_dt = self.target_timezone.localize(datetime(self.year, start, 1, 0, 0))
+                if end == 12:
+                    end_dt = self.target_timezone.localize(datetime(self.year, 1 , 1, 23, 59)) - timedelta(days=1)
+                else:
+                    end_dt = self.target_timezone.localize(datetime(self.year, end + 1 , 1, 23, 59)) - timedelta(days=1)
                 return f"Q{i}", (start_dt, end_dt)
         return None
 

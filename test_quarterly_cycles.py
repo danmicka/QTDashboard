@@ -1,5 +1,5 @@
 import unittest
-from datetime import datetime
+from datetime import datetime, timedelta
 import pytz
 from QuaterlyCycles import QuarterlyCycles  # assuming the class is saved in quarterly_cycles.py
 
@@ -10,6 +10,96 @@ class TestQuarterlyCycles(unittest.TestCase):
         self.target_timezone = 'America/New_York'
         self.tz = pytz.timezone(self.target_timezone)
 
+    # Test Yearly Quarters
+    def test_yearly_quarter_q1(self):
+        # Q1: January to March
+        dt = self.tz.localize(datetime(2024, 2, 15, 10, 0))  # A date in Q1
+        qt = QuarterlyCycles(dt, local_timezone=self.local_timezone, target_timezone=self.target_timezone)
+        quarter, (start, end) = qt.get_yearly_quarter()
+        self.assertEqual(quarter, "Q1")
+        self.assertEqual(start, self.tz.localize(datetime(2024, 1, 1)))
+        self.assertEqual(end, self.tz.localize(datetime(2024, 3, 31, 23, 59)))
+
+    def test_yearly_quarter_q2(self):
+        # Q2: April to June
+        dt = self.tz.localize(datetime(2024, 5, 15, 10, 0))  # A date in Q2
+        qt = QuarterlyCycles(dt, local_timezone=self.local_timezone, target_timezone=self.target_timezone)
+        quarter, (start, end) = qt.get_yearly_quarter()
+        self.assertEqual(quarter, "Q2")
+        self.assertEqual(start, self.tz.localize(datetime(2024, 4, 1)))
+        self.assertEqual(end, self.tz.localize(datetime(2024, 6, 30, 23, 59)))
+
+    def test_yearly_quarter_q3(self):
+        # Q3: July to September
+        dt = self.tz.localize(datetime(2024, 8, 15, 10, 0))  # A date in Q3
+        qt = QuarterlyCycles(dt, local_timezone=self.local_timezone, target_timezone=self.target_timezone)
+        quarter, (start, end) = qt.get_yearly_quarter()
+        self.assertEqual(quarter, "Q3")
+        self.assertEqual(start, self.tz.localize(datetime(2024, 7, 1)))
+        self.assertEqual(end, self.tz.localize(datetime(2024, 9, 30, 23, 59)))
+
+    def test_yearly_quarter_q4(self):
+        # Q4: October to December
+        dt = self.tz.localize(datetime(2024, 11, 15, 10, 0))  # A date in Q4
+        qt = QuarterlyCycles(dt, local_timezone=self.local_timezone, target_timezone=self.target_timezone)
+        quarter, (start, end) = qt.get_yearly_quarter()
+        self.assertEqual(quarter, "Q4")
+        self.assertEqual(start, self.tz.localize(datetime(2024, 10, 1)))
+        self.assertEqual(end, self.tz.localize(datetime(2024, 12, 31, 23, 59)))
+
+    # Test Monthly Quarters
+    def test_monthly_quarter_qx(self):
+        # Monthly Q1
+        dt = self.tz.localize(datetime(2024, 5, 3, 10, 0))  # A date in monthly Qx
+        qt = QuarterlyCycles(dt, local_timezone=self.local_timezone, target_timezone=self.target_timezone)
+        quarter, (start, end) = qt.get_monthly_quarter()
+        self.assertEqual(quarter, "Qx")
+        self.assertEqual(start, self.tz.localize(datetime(2024, 4, 28, 16, 0)))
+        self.assertEqual(end, self.tz.localize(datetime(2024, 5, 3, 18, 00)))
+
+    def test_monthly_quarter_q1(self):
+        # Monthly Q1
+        dt = self.tz.localize(datetime(2024, 5, 7, 10, 0))  # A date in monthly Q1
+        qt = QuarterlyCycles(dt, local_timezone=self.local_timezone, target_timezone=self.target_timezone)
+        quarter, (start, end) = qt.get_monthly_quarter()
+        first_monday = qt.get_first_monday()
+        self.assertEqual(quarter, "Q1")
+        self.assertEqual(start, first_monday - timedelta(days=1) + timedelta(hours=18))
+        self.assertEqual(end, start + timedelta(days=7))
+
+    def test_monthly_quarter_q2(self):
+        # Monthly Q2
+        dt = self.tz.localize(datetime(2024, 5, 15, 10, 0))  # A date in monthly Q2
+        qt = QuarterlyCycles(dt, local_timezone=self.local_timezone, target_timezone=self.target_timezone)
+        quarter, (start, end) = qt.get_monthly_quarter()
+        first_monday = qt.get_first_monday()
+        self.assertEqual(quarter, "Q2")
+        start = first_monday - timedelta(days=1) + timedelta(hours=18) + timedelta(days=7)
+        self.assertEqual(start, start)
+        self.assertEqual(end, start + timedelta(days=7))
+
+    def test_monthly_quarter_q3(self):
+        # Monthly Q3
+        dt = self.tz.localize(datetime(2024, 5, 22, 10, 0))  # A date in monthly Q3
+        qt = QuarterlyCycles(dt, local_timezone=self.local_timezone, target_timezone=self.target_timezone)
+        quarter, (start, end) = qt.get_monthly_quarter()
+        first_monday = qt.get_first_monday()
+        self.assertEqual(quarter, "Q3")
+        start = first_monday - timedelta(days=1) + timedelta(hours=18) + timedelta(days=14)
+        self.assertEqual(start, start)
+        self.assertEqual(end, start + timedelta(days=7))
+
+    def test_monthly_quarter_q4(self):
+        # Monthly Q4
+        dt = self.tz.localize(datetime(2024, 5, 29, 10, 0))  # A date in monthly Q4
+        qt = QuarterlyCycles(dt, local_timezone=self.local_timezone, target_timezone=self.target_timezone)
+        quarter, (start, end) = qt.get_monthly_quarter()
+        first_monday = qt.get_first_monday()
+        self.assertEqual(quarter, "Q4")
+        start = first_monday - timedelta(days=1) + timedelta(hours=18) + timedelta(days=21)
+        self.assertEqual(start, start)
+        self.assertEqual(end, start + timedelta(days=7))
+    
     # Test Weekly Quarters
     def test_weekly_quarter_q1(self):
         # Sunday 7pm (Q1)

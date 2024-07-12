@@ -3,6 +3,10 @@ from QuaterlyCycles import QuarterlyCycles
 from datetime import datetime 
 
 if __name__ == "__main__":
+
+    local_timezone = 'Europe/Zurich'
+    target_timezone = 'America/New_York'
+
     #qt = QuarterlyCycles(datetime(2024, 6, 6, 10, 30), timezone='America/New_York')
     #qt = QuarterlyCycles(datetime(2024, 6, 20, 10, 30), timezone='America/New_York')
     #qt = QuarterlyCycles(datetime(2024, 6, 24, 6, 00), timezone='America/New_York')
@@ -28,8 +32,17 @@ if __name__ == "__main__":
     # Now
     dt = datetime.now()
     print (dt)
-    qt = QuarterlyCycles(dt, timezone='America/New_York')
-    print(qt.day, qt.hour, qt.minute)
+    qt = QuarterlyCycles(dt, local_timezone=local_timezone, target_timezone=target_timezone)
+  
+    # Print the day, hour, and minute in the target timezone
+    print(f"Day: {qt.day}, Hour: {qt.hour}, Minute: {qt.minute}")
+
+    quarter = qt.get_90_minute_quarter()
+    if quarter:
+        quarter_name, (start, end) = quarter
+        print(f"Quarter: {quarter_name}, Start: {start}, End: {end}")
+    else:
+        print("No 90-minute quarter found.")
 
     print('current quaters:')
     print(qt.get_current_quarter())
@@ -38,3 +51,4 @@ if __name__ == "__main__":
     print('test:')
     #qtw = QuarterlyCycles(datetime(2024, 6, 19, 18, 30), timezone='America/New_York')
     #print(qt.get_weekly_quarter())
+    #

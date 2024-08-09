@@ -32,7 +32,7 @@ if __name__ == "__main__":
     # Yearly
     #qt = QuarterlyCycles(datetime(2024, 11, 15, 10, 0), local_timezone=local_timezone, target_timezone=target_timezone)
     # Monthly
-    qt =  QuarterlyCycles(datetime(2024, 5, 3, 10, 0), local_timezone=local_timezone, target_timezone=target_timezone)
+    qt =  QuarterlyCycles(datetime(2024, 6, 9, 19, 0), local_timezone=local_timezone, target_timezone=target_timezone)
 
     """
     # Now

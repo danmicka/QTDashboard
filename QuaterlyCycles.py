@@ -39,7 +39,7 @@ class QuarterlyCycles:
             if start <= self.month <= end:
                 start_dt = self.target_timezone.localize(datetime(self.year, start, 1, 0, 0))
                 if end == 12:
-                    end_dt = self.target_timezone.localize(datetime(self.year, 1 , 1, 23, 59)) - timedelta(days=1)
+                    end_dt = self.target_timezone.localize(datetime(self.year + 1, 1 , 1, 23, 59)) - timedelta(days=1)
                 else:
                     end_dt = self.target_timezone.localize(datetime(self.year, end + 1 , 1, 23, 59)) - timedelta(days=1)
                 return f"Q{i}", (start_dt, end_dt)
@@ -52,9 +52,16 @@ class QuarterlyCycles:
             quarters.append(quarters[-1] + timedelta(days=7))
 
         for i, (start_time) in enumerate(quarters, 1):
-            end_time = start_time + timedelta(days=7)
+            # From Sunday 18:00 to Friday 16:00
+            end_time = start_time + timedelta(days=5)
+            if end_time.weekday() == 4:
+                end_time = end_time.replace(hour=16, minute=0)     
+            else:  
+                end_time = end_time.replace(hour=18, minute=0)     
+
             if start_time <= self.dt < end_time:
                 return f"Q{i}", (start_time, end_time)
+            
         
         # Handle extra period if not within any quarter
         start_time = (self.dt - timedelta(days=self.dt.weekday() + 1)).replace(hour=18, minute=0)

@@ -155,12 +155,12 @@ class QuarterlyCycles:
 
     def get_previous_yearly_quarter(self):
         previous_dt = self.dt - timedelta(weeks=13)
-        prev_quarters = QuarterlyCycles(previous_dt, self.target_timezone.zone)
+        prev_quarters = QuarterlyCycles(previous_dt, local_timezone=self.local_timezone.zone, target_timezone=self.target_timezone.zone)
         return prev_quarters.get_yearly_quarter()
 
     def get_previous_monthly_quarter(self):
         previous_dt = self.dt - timedelta(days=7)
-        prev_quarters = QuarterlyCycles(previous_dt, self.target_timezone.zone)
+        prev_quarters = QuarterlyCycles(previous_dt, local_timezone=self.local_timezone.zone, target_timezone=self.target_timezone.zone)
         return prev_quarters.get_monthly_quarter()
 
     def get_previous_weekly_quarter(self):
@@ -176,22 +176,24 @@ class QuarterlyCycles:
         else: 
             previous_dt = self.dt - timedelta(days=1)
         
-        prev_quarters = QuarterlyCycles(previous_dt, self.target_timezone.zone)
+        prev_quarters = QuarterlyCycles(previous_dt, local_timezone=self.local_timezone.zone, target_timezone=self.target_timezone.zone)
+        
         return prev_quarters.get_weekly_quarter()
+    
 
     def get_previous_daily_quarter(self):
         previous_dt = self.dt - timedelta(hours=6)
-        prev_quarters = QuarterlyCycles(previous_dt, self.target_timezone.zone)
+        prev_quarters = QuarterlyCycles(previous_dt, local_timezone=self.local_timezone.zone, target_timezone=self.target_timezone.zone)
         return prev_quarters.get_daily_quarter()
 
     def get_previous_90_minute_quarter(self):
         previous_dt = self.dt - timedelta(minutes=90)
-        prev_quarters = QuarterlyCycles(previous_dt, self.target_timezone.zone)
+        prev_quarters = QuarterlyCycles(previous_dt, local_timezone=self.local_timezone.zone, target_timezone=self.target_timezone.zone)
         return prev_quarters.get_90_minute_quarter()
 
     def get_previous_micro_quarter(self):
         previous_dt = self.dt - timedelta(minutes=22.5)
-        prev_quarters = QuarterlyCycles(previous_dt, self.target_timezone.zone)
+        prev_quarters = QuarterlyCycles(previous_dt, local_timezone=self.local_timezone.zone, target_timezone=self.target_timezone.zone)
         return prev_quarters.get_micro_quarter()
 
     def get_previous_quarter(self):

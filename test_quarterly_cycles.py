@@ -6,7 +6,7 @@ from QuaterlyCycles import QuarterlyCycles  # assuming the class is saved in qua
 class TestQuarterlyCycles(unittest.TestCase):
     
     def setUp(self):
-        self.local_timezone = 'Europe/Zurich'
+        self.local_timezone = 'America/New_York'
         self.target_timezone = 'America/New_York'
         self.tz = pytz.timezone(self.target_timezone)
 

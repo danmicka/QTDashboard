@@ -4,7 +4,7 @@ from datetime import datetime
 
 if __name__ == "__main__":
 
-    local_timezone = 'Europe/Zurich'
+    local_timezone = 'America/New_York'
     target_timezone = 'America/New_York'
 
     #qt = QuarterlyCycles(datetime(2024, 6, 6, 10, 30), timezone='America/New_York')
@@ -32,6 +32,8 @@ if __name__ == "__main__":
     # Yearly
     #qt = QuarterlyCycles(datetime(2024, 11, 15, 10, 0), local_timezone=local_timezone, target_timezone=target_timezone)
     # Monthly
+    #qt =  QuarterlyCycles(datetime(2024, 6, 9, 19, 0), local_timezone=local_timezone, target_timezone=target_timezone)
+    # Weekly
     qt =  QuarterlyCycles(datetime(2024, 6, 9, 19, 0), local_timezone=local_timezone, target_timezone=target_timezone)
 
     """

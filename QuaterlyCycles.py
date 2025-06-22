@@ -97,6 +97,25 @@ class QuarterlyCycles:
     
 
     def get_daily_quarter(self):
+
+        day_of_week = self.dt.weekday()
+        hour = self.dt.hour
+
+        # Handle special weekend case
+        if day_of_week == 5 or (day_of_week == 6 and hour < 18):
+            # Saturday or Sunday before 6pm
+            # Calculate the Friday 18:00
+            friday_dt = self.dt - timedelta(days=(day_of_week - 4))  # 4 = Friday
+            start_dt = self.target_timezone.localize(
+                datetime(friday_dt.year, friday_dt.month, friday_dt.day, 18, 0)
+            )
+            end_dt = self.target_timezone.localize(
+                datetime(self.dt.year, self.dt.month, self.dt.day, 6, 0)
+            ) + timedelta(days=1 if day_of_week == 6 else 0)
+
+            if start_dt <= self.dt < end_dt:
+                return "Q4", (start_dt, end_dt)
+
         quarters = [(18, 0), (0, 6), (6, 12), (12, 18)]
         for i, (start, end) in enumerate(quarters, 1):
             start_dt = self.target_timezone.localize(datetime(self.year, self.month, self.day, start, 0))
@@ -182,6 +201,25 @@ class QuarterlyCycles:
     
 
     def get_previous_daily_quarter(self):
+
+        day_of_week = self.dt.weekday()
+        hour = self.dt.hour
+
+        if day_of_week == 6 and hour >= 18 and hour <= 24:
+            # Saturday or Sunday before 6pm
+            # Calculate the Friday 18:00
+            friday_dt = self.dt - timedelta(days=(day_of_week - 4))  # 4 = Friday
+            start_dt = self.target_timezone.localize(
+                datetime(friday_dt.year, friday_dt.month, friday_dt.day, 12, 0)
+            )
+            end_dt = self.target_timezone.localize(
+                datetime(self.dt.year, self.dt.month, self.dt.day, 18, 0)
+            )
+
+            if start_dt <= self.dt < end_dt:
+                return "Q4", (start_dt, end_dt)
+
+
         previous_dt = self.dt - timedelta(hours=6)
         prev_quarters = QuarterlyCycles(previous_dt, local_timezone=self.local_timezone.zone, target_timezone=self.target_timezone.zone)
         return prev_quarters.get_daily_quarter()

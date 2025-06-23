@@ -258,3 +258,59 @@ class QuarterlyCycles:
                 result_str += f"  End: N/A\n\n"
         return result_str
 
+
+    def get_true_opens(self):
+        true_opens = {}
+        est = pytz.timezone('US/Eastern')
+
+        # --- True Year Open ---
+        # First Monday of April
+        april_first = datetime(self.year, 4, 1)
+        april_first = est.localize(april_first)
+        days_until_monday = (0 - april_first.weekday()) % 7
+        first_monday_april = april_first + timedelta(days=days_until_monday)
+        true_opens["True Year Open"] = first_monday_april.replace(hour=18, minute=0).astimezone(self.target_timezone)
+
+        # --- True Month Open ---
+        # Second full week Monday
+        first_of_month = datetime(self.year, self.month, 1)
+        first_of_month = est.localize(first_of_month)
+        weekday_of_first = first_of_month.weekday()
+
+        # Days until first Monday
+        days_until_monday = (0 - weekday_of_first) % 7
+        first_monday = first_of_month + timedelta(days=days_until_monday)
+
+        # Check if first Monday is in the first full week
+        if first_monday.day <= 7:
+            second_full_week_monday = first_monday + timedelta(days=7)
+        else:
+            second_full_week_monday = first_monday
+
+        true_opens["True Month Open"] = second_full_week_monday.replace(hour=18, minute=0).astimezone(self.target_timezone)
+
+        # --- True Week Open ---
+        # This week's Monday 6PM EST
+        current_date_est = self.dt.astimezone(est)
+        monday_of_week = current_date_est - timedelta(days=current_date_est.weekday())
+        true_opens["True Week Open"] = monday_of_week.replace(hour=18, minute=0, second=0, microsecond=0).astimezone(self.target_timezone)
+
+        # --- True Day Open ---
+        true_opens["True Day Open"] = current_date_est.replace(hour=0, minute=0, second=0, microsecond=0).astimezone(self.target_timezone)
+
+        # --- True Sessions ---
+        sessions = {
+            "True Session - Asia": (19, 30),
+            "True Session - London": (1, 30),
+            "True Session - New York": (7, 30),
+            "True Session - Afternoon": (13, 30)
+        }
+
+        for label, (h, m) in sessions.items():
+            if label == "True Session - Asia":
+                session_dt = current_date_est.replace(day=datetime.now().weekday()-1, hour=h, minute=m, second=0, microsecond=0)
+            else:
+                session_dt = current_date_est.replace(hour=h, minute=m, second=0, microsecond=0)
+            true_opens[label] = session_dt.astimezone(self.target_timezone)
+
+        return true_opens

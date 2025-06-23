@@ -269,7 +269,7 @@ class QuarterlyCycles:
         april_first = est.localize(april_first)
         days_until_monday = (0 - april_first.weekday()) % 7
         first_monday_april = april_first + timedelta(days=days_until_monday)
-        true_opens["True Year Open"] = first_monday_april.replace(hour=18, minute=0).astimezone(self.target_timezone)
+        true_opens["True Year Open"] = first_monday_april.replace(hour=0, minute=0).astimezone(self.target_timezone)
 
         # --- True Month Open ---
         # Second full week Monday
@@ -287,13 +287,35 @@ class QuarterlyCycles:
         else:
             second_full_week_monday = first_monday
 
-        true_opens["True Month Open"] = second_full_week_monday.replace(hour=18, minute=0).astimezone(self.target_timezone)
+        true_opens["True Month Open"] = second_full_week_monday.replace(hour=0, minute=0).astimezone(self.target_timezone)
 
         # --- True Week Open ---
         # This week's Monday 6PM EST
         current_date_est = self.dt.astimezone(est)
-        monday_of_week = current_date_est - timedelta(days=current_date_est.weekday())
-        true_opens["True Week Open"] = monday_of_week.replace(hour=18, minute=0, second=0, microsecond=0).astimezone(self.target_timezone)
+
+        # Find Monday of the current week
+        monday = current_date_est - timedelta(days=current_date_est.weekday())
+
+        # --- True Week Open ---
+        # This week's Monday 6PM EST
+        current_date_est = self.dt.astimezone(est)
+
+        # Find Monday of the current week
+        monday = current_date_est - timedelta(days=current_date_est.weekday())
+
+        # Get Tuesday 00:00 EST
+        tuesday = monday + timedelta(days=1)
+        tuesday_open_est = est.localize(datetime(
+            year=tuesday.year,
+            month=tuesday.month,
+            day=tuesday.day,
+            hour=0,
+            minute=0,
+            second=0,
+            microsecond=0
+        ))
+
+        true_opens["True Week Open"] = tuesday_open_est.astimezone(self.target_timezone)
 
         # --- True Day Open ---
         true_opens["True Day Open"] = current_date_est.replace(hour=0, minute=0, second=0, microsecond=0).astimezone(self.target_timezone)
@@ -308,9 +330,14 @@ class QuarterlyCycles:
 
         for label, (h, m) in sessions.items():
             if label == "True Session - Asia":
-                session_dt = current_date_est.replace(day=datetime.now().weekday()-1, hour=h, minute=m, second=0, microsecond=0)
+                session_base = current_date_est - timedelta(days=1)  # previous day
             else:
-                session_dt = current_date_est.replace(hour=h, minute=m, second=0, microsecond=0)
+                session_base = current_date_est
+
+            # Create session time
+            session_dt = session_base.replace(hour=h, minute=m, second=0, microsecond=0)
+
+            # Convert to target timezone if needed
             true_opens[label] = session_dt.astimezone(self.target_timezone)
 
         return true_opens

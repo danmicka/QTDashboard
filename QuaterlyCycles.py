@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, time, timedelta
 import pytz
 
 class QuarterlyCycles:
@@ -44,6 +44,20 @@ class QuarterlyCycles:
                     end_dt = self.target_timezone.localize(datetime(self.year, end + 1 , 1, 23, 59)) - timedelta(days=1)
                 return f"Q{i}", (start_dt, end_dt)
         return None
+    
+    def get_weekend_range(self):
+        weekday = self.dt.weekday()
+        
+        # Calculate how many days to subtract to get to previous Friday
+        days_since_friday = (weekday - 4) % 7
+        friday = self.dt - timedelta(days=days_since_friday)
+        start_dt = datetime.combine(friday.date(), time(16, 30))  # Friday 4:30 PM
+
+        # Calculate the Sunday after that Friday
+        sunday = friday + timedelta(days=2)
+        end_dt = datetime.combine(sunday.date(), time(18, 0))  # Sunday 6:00 PM
+
+        return start_dt, end_dt
 
     def get_monthly_quarter(self):
         first_monday = self.get_first_monday()
@@ -51,17 +65,13 @@ class QuarterlyCycles:
         for i in range(1, 4):
             quarters.append(quarters[-1] + timedelta(days=7))
 
-        for i, (start_time) in enumerate(quarters, 1):
-            # From Sunday 18:00 to Friday 16:00
-            end_time = start_time + timedelta(days=5)
-            if end_time.weekday() == 4:
-                end_time = end_time.replace(hour=16, minute=0)     
-            else:  
-                end_time = end_time.replace(hour=18, minute=0)     
-
-            if start_time <= self.dt < end_time:
-                return f"Q{i}", (start_time, end_time)
-            
+        for i, start_time in enumerate(quarters, 1):
+                end_time = start_time + timedelta(days=7)
+ 
+        if start_time <= self.dt < end_time:
+            return f"Q{i}", (start_time, end_time)
+        else:
+            return "Qx", (start_time, end_time)
         
         # Handle extra period if not within any quarter
         start_time = (self.dt - timedelta(days=self.dt.weekday() + 1)).replace(hour=18, minute=0)
@@ -86,7 +96,11 @@ class QuarterlyCycles:
             else:
                 end_dt = (self.dt + timedelta(days=1)).replace(hour=18, minute=0)
         else:
-            qt = qts[day_of_week]
+            if day_of_week in (5,6):
+                qt = "Qx"
+            else:     
+                qt = qts[day_of_week]
+
             start_dt = (self.dt - timedelta(days=1)).replace(hour=18, minute=0)
             if day_of_week == 4:
                 end_dt = self.target_timezone.localize(datetime(self.year, self.month, self.day, 16, 00))
@@ -136,7 +150,11 @@ class QuarterlyCycles:
                 start_time = self.target_timezone.localize(datetime(self.year, self.month, self.day, start_h, start_m))
                 end_time = self.target_timezone.localize(datetime(self.year, self.month, self.day, end_h, end_m))
                 if start_time <= self.dt < end_time:
-                    return f"{session_name} Q{i}", (start_time, end_time)
+                    if self.dt.weekday() in (5,6):
+                        start_time, end_time = self.get_weekend_range()
+                        return f"Q4", (start_time, end_time)
+                    else:
+                        return f"{session_name} Q{i}", (start_time, end_time)
         return None
 
     def get_micro_quarter(self):

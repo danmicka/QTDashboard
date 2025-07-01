@@ -290,22 +290,10 @@ class QuarterlyCycles:
         true_opens["True Year Open"] = first_monday_april.replace(hour=0, minute=0).astimezone(self.target_timezone)
 
         # --- True Month Open ---
-        # Second full week Monday
-        first_of_month = datetime(self.year, self.month, 1)
-        first_of_month = est.localize(first_of_month)
-        weekday_of_first = first_of_month.weekday()
-
-        # Days until first Monday
-        days_until_monday = (0 - weekday_of_first) % 7
-        first_monday = first_of_month + timedelta(days=days_until_monday)
-
-        # Check if first Monday is in the first full week
-        if first_monday.day <= 7:
-            second_full_week_monday = first_monday + timedelta(days=7)
-        else:
-            second_full_week_monday = first_monday
-
-        true_opens["True Month Open"] = second_full_week_monday.replace(hour=0, minute=0).astimezone(self.target_timezone)
+        # Second Monday of the month
+        first_monday = self.get_first_monday()
+        second_monday = first_monday + timedelta(days=7)
+        true_opens["True Month Open"] = (second_monday - timedelta(days=1)).replace(hour=18, minute=0)        
 
         # --- True Week Open ---
         # This week's Monday 6PM EST

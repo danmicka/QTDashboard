@@ -5,22 +5,39 @@ from ib_async import IB, RealTimeBar
 from ib_async.contract import Future
 
 SYMBOL_INFO = {
-    'ES': {
+    # S&P500
+    'MES': {
         'type': Future,
         'exchange': 'CME',
         'lastTradeDateOrContractMonth': '20250919',
         'currency': 'USD'
     },
-    'NQ': {
+    # NASDAQ
+    'MNQ': {
         'type': Future,
         'exchange': 'CME',
         'lastTradeDateOrContractMonth': '20250919',
         'currency': 'USD'
     },
-    'YM': {
+   # Dow    
+    'MYM': {
         'type': Future,
         'exchange': 'CBOT',
         'lastTradeDateOrContractMonth': '20250919',
+        'currency': 'USD'
+    },
+   # Gold    
+    'MGC': {
+        'type': Future,
+        'exchange': 'COMEX',
+        'lastTradeDateOrContractMonth': '20250827',
+        'currency': 'USD'
+    },
+    # Copper
+    'MHG': {
+        'type': Future,
+        'exchange': 'COMEX',
+        'lastTradeDateOrContractMonth': '20250827',
         'currency': 'USD'
     },
     # Example for Index:

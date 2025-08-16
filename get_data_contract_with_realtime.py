@@ -4,15 +4,50 @@ import time, random
 from ib_async import IB, RealTimeBar
 from ib_async.contract import Future
 
-SYMBOL_EXCHANGE_MAP = {
-    'ES': 'CME',
-    'NQ': 'CME',
-    'YM': 'CBOT',
-    # Add more if needed
+SYMBOL_INFO = {
+    'ES': {
+        'type': Future,
+        'exchange': 'CME',
+        'lastTradeDateOrContractMonth': '20250919',
+        'currency': 'USD'
+    },
+    'NQ': {
+        'type': Future,
+        'exchange': 'CME',
+        'lastTradeDateOrContractMonth': '20250919',
+        'currency': 'USD'
+    },
+    'YM': {
+        'type': Future,
+        'exchange': 'CBOT',
+        'lastTradeDateOrContractMonth': '20250919',
+        'currency': 'USD'
+    },
+    # Example for Index:
+    # 'SPX': {
+    #     'type': Index,
+    #     'exchange': 'CBOE',
+    #     'currency': 'USD'
+    # },
 }
 
-def get_exchange_for_symbol(symbol: str) -> str:
-    return SYMBOL_EXCHANGE_MAP.get(symbol, 'CME')  # Default to CME if not found
+def build_contract(symbol: str):
+    info = SYMBOL_INFO.get(symbol)
+    if not info:
+        raise ValueError(f"Symbol info not found for '{symbol}'")
+
+    contract_class = info['type']
+    contract_kwargs = {
+        'symbol': symbol,
+        'exchange': info['exchange'],
+        'currency': info['currency'],
+    }
+
+    # Only include this field if the contract type is Future
+    if contract_class == Future:
+        contract_kwargs['lastTradeDateOrContractMonth'] = info['lastTradeDateOrContractMonth']
+
+    return contract_class(**contract_kwargs)
 
 # Coroutine that requests and prints historical data for one symbol
 # ES / NQ : CME
@@ -20,9 +55,8 @@ def get_exchange_for_symbol(symbol: str) -> str:
 async def fetch_opening_range(ib: IB, symbol: str, opening_range_minutes: int = 15):
     print(f"Requesting data for {symbol}")
     
-    exchange = get_exchange_for_symbol(symbol)
-
-    contract = Future(symbol, lastTradeDateOrContractMonth='20250919', exchange=exchange, currency='USD')
+    contract = build_contract(symbol)
+    
     bars = await ib.reqHistoricalDataAsync(
         contract,
         endDateTime="",
@@ -46,9 +80,7 @@ async def fetch_opening_range(ib: IB, symbol: str, opening_range_minutes: int = 
 
 async def monitor_breakout(ib: IB, symbol: str):
 
-    exchange = get_exchange_for_symbol(symbol)
-
-    contract = Future(symbol, lastTradeDateOrContractMonth='20250919', exchange=exchange, currency='USD')
+    contract = build_contract(symbol)
 
     ticker = ib.reqRealTimeBars(
         contract,

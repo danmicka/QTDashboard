@@ -1,11 +1,15 @@
 # Example Usage
 from QuaterlyCycles import QuarterlyCycles
 from datetime import datetime 
+import pytz
 
 if __name__ == "__main__":
 
     local_timezone = 'America/New_York'
     target_timezone = 'America/New_York'
+
+    tz_ny = pytz.timezone("America/New_York")
+    now_ny = datetime.now(tz_ny)
 
     #qt = QuarterlyCycles(datetime(2024, 6, 6, 10, 30), timezone='America/New_York')
     #qt = QuarterlyCycles(datetime(2024, 6, 20, 10, 30), timezone='America/New_York')
@@ -34,7 +38,9 @@ if __name__ == "__main__":
     # Monthly
     #qt =  QuarterlyCycles(datetime(2024, 6, 9, 19, 0), local_timezone=local_timezone, target_timezone=target_timezone)
     # Weekly
-    qt =  QuarterlyCycles(datetime(2024, 6, 9, 19, 0), local_timezone=local_timezone, target_timezone=target_timezone)
+    #qt =  QuarterlyCycles(datetime(2024, 6, 9, 19, 0), local_timezone=local_timezone, target_timezone=target_timezone)
+    # Current
+    qt =  QuarterlyCycles(now_ny, local_timezone=local_timezone, target_timezone=target_timezone)
 
     """
     # Now
@@ -50,13 +56,27 @@ if __name__ == "__main__":
         quarter_name, (start, end) = quarter
         print(f"Quarter: {quarter_name}, Start: {start}, End: {end}")
     else:
-        print("No 90-minute quarter found.")
+        print("No 90-minute quarter found.")curre
     """
+    
+    print('cdate:')
+    print(now_ny)
+
     print('current quaters:')
     print(qt.get_current_quarter())
+
     print('previous quaters:')
     print(qt.get_previous_quarter())
+
     print('test:')
+    print(qt.get_previous_daily_quarter())
+
+    print('true opens:')
+    true_opens = qt.get_true_opens()
+
+    for label, dt in true_opens.items():
+        print(f"{label}: {qt.format_datetime(dt)}")
+
     #qtw = QuarterlyCycles(datetime(2024, 6, 19, 18, 30), timezone='America/New_York')
     #print(qt.get_weekly_quarter())
     #
